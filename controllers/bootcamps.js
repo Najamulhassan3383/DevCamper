@@ -1,5 +1,7 @@
 // Desc: Controller for bootcamps
 
+const Bootcamp = require("../models/Bootcamps");
+
 class BootcampsRoutes {
   // @desc Get all bootcamps
   //@route GET /api/v1/bootcamps
@@ -21,8 +23,9 @@ class BootcampsRoutes {
   //@route POST /api/v1/bootcamps
   //@access Private
 
-  createBootcamp(req, res, next) {
-    res.status(200).json({ success: true, msg: "create new bootcamp" });
+  async createBootcamp(req, res, next) {
+    const data = await Bootcamp.create(req.body);
+    res.status(201).json({ success: true, data });
   }
 
   // @desc Update bootcamp
