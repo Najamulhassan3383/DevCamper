@@ -1,6 +1,7 @@
 // Desc: Controller for bootcamps
 
 const Bootcamp = require("../models/Bootcamps");
+const ErrorResponse = require("../utils/errorResponse");
 
 class BootcampsRoutes {
   // @desc Get all bootcamps
@@ -16,10 +17,7 @@ class BootcampsRoutes {
         });
       })
       .catch((err) => {
-        res.status(400).json({
-          success: false,
-          error: err,
-        });
+        next(err);
       });
   }
 
@@ -27,20 +25,25 @@ class BootcampsRoutes {
   //@route GET /api/v1/bootcamps/:id
   //@access Public
   getBootcamp(req, res, next) {
-    Bootcamp.findById(req.params.id).then((bootcamp) => {
-      res
-        .status(200)
-        .json({
-          success: true,
-          data: bootcamp,
-        })
-        .then((err) => {
-          res.status(400).json({
-            success: false,
-            error: err,
+    Bootcamp.findById(req.params.id)
+      .then((bootcamp) => {
+        if (!bootcamp) {
+          throw new Error("cant find anything with this id");
+        } else {
+          res.status(200).json({
+            success: true,
+            data: bootcamp,
           });
-        });
-    });
+        }
+      })
+      .catch((err) => {
+        next(
+          new ErrorResponse(
+            `Bootcamp not found with id of ${req.params.id}`,
+            404
+          )
+        );
+      });
   }
 
   // @desc Create new bootcamp

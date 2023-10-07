@@ -2,6 +2,7 @@ const express = require("express");
 const dotenv = require("dotenv");
 //route files
 const bootcamps = require("./routes/bootcamps");
+const errorHanlder = require("./middleware/error");
 //mongo db connection
 
 const db = require("./config/db");
@@ -26,6 +27,8 @@ if (process.env.NODE_ENV === "development") {
 // mount routers
 
 app.use("/api/v1/bootcamps", bootcamps);
+
+app.use(errorHanlder);
 
 const PORT = process.env.PORT;
 
