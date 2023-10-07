@@ -1,5 +1,6 @@
 // Desc: Controller for bootcamps
 
+const errorHandler = require("../middleware/error");
 const Bootcamp = require("../models/Bootcamps");
 const ErrorResponse = require("../utils/errorResponse");
 
@@ -10,11 +11,18 @@ class BootcampsRoutes {
   getBootcamps(req, res, next) {
     Bootcamp.find()
       .then((bootcamps) => {
-        res.status(200).json({
-          success: true,
-          count: bootcamps.length,
-          data: bootcamps,
-        });
+        if (!bootcamps) {
+          throw new ErrorResponse(
+            `Bootcamp not found with this ${req.params.id}`,
+            404
+          );
+        } else {
+          res.status(200).json({
+            success: true,
+            count: bootcamps.length,
+            data: bootcamps,
+          });
+        }
       })
       .catch((err) => {
         next(err);
@@ -28,7 +36,10 @@ class BootcampsRoutes {
     Bootcamp.findById(req.params.id)
       .then((bootcamp) => {
         if (!bootcamp) {
-          throw new Error("cant find anything with this id");
+          throw new ErrorResponse(
+            `Bootcamp not found with this ${req.params.id}`,
+            404
+          );
         } else {
           res.status(200).json({
             success: true,
@@ -37,12 +48,7 @@ class BootcampsRoutes {
         }
       })
       .catch((err) => {
-        next(
-          new ErrorResponse(
-            `Bootcamp not found with id of ${req.params.id}`,
-            404
-          )
-        );
+        next(err);
       });
   }
 
@@ -53,16 +59,20 @@ class BootcampsRoutes {
   async createBootcamp(req, res, next) {
     Bootcamp.create(req.body)
       .then((bootcamp) => {
-        res.status(201).json({
-          success: true,
-          data: bootcamp,
-        });
+        if (!bootcamp) {
+          throw new ErrorResponse(
+            `Bootcamp not found with this ${req.params.id}`,
+            404
+          );
+        } else {
+          res.status(201).json({
+            success: true,
+            data: bootcamp,
+          });
+        }
       })
       .catch((err) => {
-        res.status(400).json({
-          success: false,
-          error: err,
-        });
+        next(err);
       });
   }
 
@@ -78,7 +88,10 @@ class BootcampsRoutes {
     })
       .then((bootcamp) => {
         if (!bootcamp) {
-          throw new Error("Can't find the specified bootcamp");
+          throw new ErrorResponse(
+            `Bootcamp not found with this ${req.params.id}`,
+            404
+          );
         }
         res.status(200).json({
           success: true,
@@ -87,10 +100,7 @@ class BootcampsRoutes {
       })
       .catch((err) => {
         // Sending a 404 status code with the response
-        res.status(404).json({
-          success: false,
-          error: err.message, // Include the error message in the response for debugging
-        });
+        next(err);
       });
   }
 
@@ -101,7 +111,10 @@ class BootcampsRoutes {
     Bootcamp.findByIdAndDelete(req.params.id)
       .then((bootcamp) => {
         if (!bootcamp) {
-          throw new Error("can't find anything ");
+          throw new ErrorResponse(
+            `Bootcamp not found with this ${req.params.id}`,
+            404
+          );
         }
         res.status(200).json({
           success: true,
@@ -109,10 +122,7 @@ class BootcampsRoutes {
         });
       })
       .catch((err) => {
-        res.status(404).json({
-          success: false,
-          data: {},
-        });
+        next(err);
       });
   }
 }
