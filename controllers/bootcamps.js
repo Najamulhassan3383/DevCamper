@@ -3,6 +3,7 @@
 const errorHandler = require("../middleware/error");
 const Bootcamp = require("../models/Bootcamps");
 const ErrorResponse = require("../utils/errorResponse");
+const geoCoder = require("../utils/geoCoder");
 
 class BootcampsRoutes {
   // @desc Get all bootcamps
@@ -119,6 +120,39 @@ class BootcampsRoutes {
         res.status(200).json({
           success: true,
           data: {},
+        });
+      })
+      .catch((err) => {
+        next(err);
+      });
+  }
+
+  // @desc get bootcamp within a radius
+  //@route GET /api/v1/bootcamps/radius/:zipcode/:distance
+  //@access Private
+  getBootcampsInRadius(req, res, next) {
+    const { zipcode, distance } = req.params;
+    console.log(zipcode, distance);
+
+    //get lat/lang from geocoder
+    geoCoder
+      .geocode(zipcode)
+      .then((loc) => {
+        const lat = loc[0].latitude;
+        const lng = loc[0].longitude;
+
+        const radius = distance / 3963;
+
+        Bootcamp.find({
+          location: {
+            $geoWithin: { $centerSphere: [[lng, lat], radius] },
+          },
+        }).then((bootcamps) => {
+          res.status(200).json({
+            success: true,
+            count: bootcamps.length,
+            data: bootcamps,
+          });
         });
       })
       .catch((err) => {

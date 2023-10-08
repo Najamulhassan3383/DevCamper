@@ -5,6 +5,10 @@ const BootcampsRoutes = require("../controllers/bootcamps");
 const bootcampsRoutes = new BootcampsRoutes();
 
 router
+  .route("/radius/:zipcode/:distance")
+  .get(bootcampsRoutes.getBootcampsInRadius);
+
+router
   .route("/")
   .get(bootcampsRoutes.getBootcamps)
   .post(bootcampsRoutes.createBootcamp);
