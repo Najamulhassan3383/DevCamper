@@ -10,8 +10,16 @@ class BootcampsRoutes {
   //@route GET /api/v1/bootcamps
   //@access Public
   getBootcamps(req, res, next) {
-    console.log(req.query);
-    Bootcamp.find()
+    let query;
+    let queryStr = JSON.stringify(req.query);
+    // console.log(queryStr);
+
+    queryStr = queryStr.replace(/\b(gt|gte|lt|lte)\b/g, (match) => {
+      return `$${match}`;
+    });
+    // console.log(queryStr);
+
+    Bootcamp.find(JSON.parse(queryStr))
       .then((bootcamps) => {
         if (!bootcamps) {
           throw new ErrorResponse(
