@@ -10,6 +10,7 @@ class BootcampsRoutes {
   //@route GET /api/v1/bootcamps
   //@access Public
   getBootcamps(req, res, next) {
+    console.log(req.query);
     Bootcamp.find()
       .then((bootcamps) => {
         if (!bootcamps) {
