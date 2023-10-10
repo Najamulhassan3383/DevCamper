@@ -37,9 +37,22 @@ class BootcampsRoutes {
       mongooseQuery = mongooseQuery.sort("-createdAt");
     }
 
+    //pagination
+    const page = parseInt(req.query.page, 10) || 1;
+    const limit = parseInt(req.query.limit, 10) || 2;
+
+    //for skipping certain amount of bootcamps
+    // console.log(limit);
+
+    const skip = (page - 1) * limit;
+
+    console.log(`Page: ${page}, Limit: ${limit}, Skip: ${skip}`);
+
+    mongooseQuery = mongooseQuery.skip(skip).limit(limit).exec();
+
     mongooseQuery
       .then((bootcamps) => {
-        if (!bootcamps || bootcamps.length === 0) {
+        if (!bootcamps) {
           throw new ErrorResponse(
             `Bootcamp not found with this ${req.params.id}`,
             404
