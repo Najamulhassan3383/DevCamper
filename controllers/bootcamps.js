@@ -11,17 +11,35 @@ class BootcampsRoutes {
   //@access Public
   getBootcamps(req, res, next) {
     let query;
-    let queryStr = JSON.stringify(req.query);
-    // console.log(queryStr);
+    let reqQuery = { ...req.query };
 
-    queryStr = queryStr.replace(/\b(gt|gte|lt|lte)\b/g, (match) => {
+    // Remove fields that should not be part of the query
+    const removeFields = ["select", "sort"];
+    removeFields.forEach((item) => delete reqQuery[item]);
+
+    let queryStr = JSON.stringify(reqQuery);
+    query = queryStr.replace(/\b(gt|gte|lt|lte)\b/g, (match) => {
       return `$${match}`;
     });
-    // console.log(queryStr);
 
-    Bootcamp.find(JSON.parse(queryStr))
+    let mongooseQuery = Bootcamp.find(JSON.parse(query));
+
+    // Apply select fields if specified in req.query.select
+    if (req.query.select) {
+      const fields = req.query.select.split(",").join(" ");
+      mongooseQuery = mongooseQuery.select(fields);
+    }
+
+    if (req.query.sort) {
+      const sortBy = req.query.sort.split(",").join(" ");
+      mongooseQuery = mongooseQuery.sort(sortBy);
+    } else {
+      mongooseQuery = mongooseQuery.sort("-createdAt");
+    }
+
+    mongooseQuery
       .then((bootcamps) => {
-        if (!bootcamps) {
+        if (!bootcamps || bootcamps.length === 0) {
           throw new ErrorResponse(
             `Bootcamp not found with this ${req.params.id}`,
             404
