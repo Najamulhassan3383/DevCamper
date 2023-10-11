@@ -38,15 +38,17 @@ class BootcampsRoutes {
     }
 
     //pagination
+    console.log("query is ", req.query);
     const page = parseInt(req.query.page, 10) || 1;
-    const limit = parseInt(req.query.limit, 10) || 2;
+    const limit = parseInt(req.query.limit, 10) || 1;
+    const skip = (page - 1) * limit;
 
     //for skipping certain amount of bootcamps
     // console.log(limit);
 
-    const skip = (page - 1) * limit;
-
-    console.log(`Page: ${page}, Limit: ${limit}, Skip: ${skip}`);
+    console.log(
+      `Received query parameters: page=${req.query.page}, limit=${req.query.limit}`
+    );
 
     mongooseQuery = mongooseQuery.skip(skip).limit(limit).exec();
 
