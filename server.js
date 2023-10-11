@@ -2,6 +2,7 @@ const express = require("express");
 const dotenv = require("dotenv");
 //route files
 const bootcamps = require("./routes/bootcamps");
+const courses = require("./routes/courses");
 const errorHanlder = require("./middleware/error");
 //mongo db connection
 
@@ -25,7 +26,7 @@ if (process.env.NODE_ENV === "development") {
 
 // app.use(logger);
 // mount routers
-
+app.use("/api/v1/courses", courses);
 app.use("/api/v1/bootcamps", bootcamps);
 
 app.use(errorHanlder);

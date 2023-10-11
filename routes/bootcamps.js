@@ -1,8 +1,14 @@
 const express = require("express");
-const router = express.Router();
-const BootcampsRoutes = require("../controllers/bootcamps");
 
+const BootcampsRoutes = require("../controllers/bootcamps");
+//include other resouce routers
+const CourseRouter = require("./courses");
+const router = express.Router();
 const bootcampsRoutes = new BootcampsRoutes();
+
+//re route it into other resource routers
+
+router.use("/:bootcampId/courses", CourseRouter);
 
 router
   .route("/radius/:zipcode/:distance")
