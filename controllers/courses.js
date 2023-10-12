@@ -137,6 +137,33 @@ class CoursesRoutes {
         next(err);
       });
   }
+
+  // @desc Update  courses
+  //@route PUT /api/v1 / courses /: id
+  // @access Private
+  updateCouse(req, res, next) {
+    Courses.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true,
+    })
+      .then((course) => {
+        if (!course) {
+          throw new ErrorResponse(
+            `Courses not found with this ${req.params.id}`,
+            404
+          );
+        }
+
+        res.status(200).json({
+          success: true,
+
+          data: course,
+        });
+      })
+      .catch((err) => {
+        next(err);
+      });
+  }
 }
 
 module.exports = CoursesRoutes;
