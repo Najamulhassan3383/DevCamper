@@ -164,6 +164,32 @@ class CoursesRoutes {
         next(err);
       });
   }
+
+  // @desc delte  courses
+  //@route DELETE /api/v1 / courses /: id
+  // @access Private
+  deleteCourse(req, res, next) {
+    Courses.findById(req.params.id)
+      .then(async (course) => {
+        if (!course) {
+          throw new ErrorResponse(
+            `Courses not found with this ${req.params.id}`,
+            404
+          );
+        }
+
+        await course.deleteOne();
+
+        res.status(200).json({
+          success: true,
+
+          data: {},
+        });
+      })
+      .catch((err) => {
+        next(err);
+      });
+  }
 }
 
 module.exports = CoursesRoutes;
