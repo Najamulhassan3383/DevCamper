@@ -4,6 +4,7 @@ const errorHandler = require("../middleware/error");
 const Bootcamp = require("../models/Bootcamps");
 const ErrorResponse = require("../utils/errorResponse");
 const geoCoder = require("../utils/geoCoder");
+const Course = require("../models/Courses");
 
 class BootcampsRoutes {
   // @desc Get all bootcamps
@@ -152,14 +153,22 @@ class BootcampsRoutes {
   //@access Private
   deleteBootcamp(req, res, next) {
     Bootcamp.findById(req.params.id)
-      .then((bootcamp) => {
+      .then(async (bootcamp) => {
         if (!bootcamp) {
           throw new ErrorResponse(
             `Bootcamp not found with this ${req.params.id}`,
             404
           );
         }
-        bootcamp.remove();
+
+        console.log("Bootcamp found, deleting associated courses...");
+
+        // Delete associated courses (using deleteMany)
+        await Course.deleteMany({ bootcamp: req.params.id });
+
+        // Now, delete the bootcamp
+        await bootcamp.deleteOne();
+
         res.status(200).json({
           success: true,
           data: {},
