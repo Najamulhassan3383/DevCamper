@@ -14,7 +14,10 @@ class CoursesRoutes {
     if (req.params.bootcampId) {
       query = Courses.find({ bootcamp: req.params.bootcampId });
     } else {
-      query = Courses.find();
+      query = Courses.find().populate({
+        path: "bootcamp",
+        select: "name description",
+      });
     }
 
     query
@@ -25,8 +28,10 @@ class CoursesRoutes {
             404
           );
         }
+
         res.status(200).json({
           success: true,
+
           count: courses.length,
           data: courses,
         });

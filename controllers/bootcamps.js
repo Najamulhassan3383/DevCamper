@@ -22,7 +22,7 @@ class BootcampsRoutes {
       return `$${match}`;
     });
 
-    let mongooseQuery = Bootcamp.find(JSON.parse(query));
+    let mongooseQuery = Bootcamp.find(JSON.parse(query)).populate("courses");
 
     // Apply select fields if specified in req.query.select
     if (req.query.select) {
@@ -40,7 +40,7 @@ class BootcampsRoutes {
     //pagination
     console.log("query is ", req.query);
     const page = parseInt(req.query.page, 10) || 1;
-    const limit = parseInt(req.query.limit, 10) || 1;
+    const limit = parseInt(req.query.limit, 10) || 10;
     const skip = (page - 1) * limit;
 
     //for skipping certain amount of bootcamps
@@ -151,7 +151,7 @@ class BootcampsRoutes {
   //@route DELETE /api/v1/bootcamps/:id
   //@access Private
   deleteBootcamp(req, res, next) {
-    Bootcamp.findByIdAndDelete(req.params.id)
+    Bootcamp.findById(req.params.id)
       .then((bootcamp) => {
         if (!bootcamp) {
           throw new ErrorResponse(
@@ -159,6 +159,7 @@ class BootcampsRoutes {
             404
           );
         }
+        bootcamp.remove();
         res.status(200).json({
           success: true,
           data: {},
