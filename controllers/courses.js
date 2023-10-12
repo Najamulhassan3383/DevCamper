@@ -1,6 +1,7 @@
 const errorHandler = require("../middleware/error");
 const Courses = require("../models/Courses");
 const ErrorResponse = require("../utils/errorResponse");
+const Bootcamp = require("../models/Bootcamps");
 
 class CoursesRoutes {
   // @desc Get  courses
@@ -10,9 +11,10 @@ class CoursesRoutes {
 
   getCourses(req, res, next) {
     let query;
-    console.log(req.params);
-    if (req.params.bootcampId) {
-      query = Courses.find({ bootcamp: req.params.bootcampId });
+
+    console.log(req.bootcampId);
+    if (req.bootcampId) {
+      query = Courses.find({ bootcamp: req.bootcampId });
     } else {
       query = Courses.find().populate({
         path: "bootcamp",
@@ -35,6 +37,101 @@ class CoursesRoutes {
           count: courses.length,
           data: courses,
         });
+      })
+      .catch((err) => {
+        next(err);
+      });
+  }
+
+  // @desc Get  courses
+  //@route GET /api/v1/courses/:id
+
+  //@access Public
+
+  getCourse(req, res, next) {
+    let query;
+    console.log(req.params);
+    Courses.findById(req.params.id)
+      .populate({
+        path: "bootcamp",
+        select: "name description",
+      })
+      .then((course) => {
+        if (!course) {
+          throw new ErrorResponse(
+            `Courses not found with this ${req.params.id}`,
+            404
+          );
+        }
+
+        res.status(200).json({
+          success: true,
+
+          data: course,
+        });
+      })
+      .catch((err) => {
+        next(err);
+      });
+  }
+
+  // @desc Get  courses
+  //@route GET /api/v1/courses/:id
+
+  //@access Public
+
+  getCourse(req, res, next) {
+    let query;
+    console.log(req.params);
+    Courses.findById(req.params.id)
+      .populate({
+        path: "bootcamp",
+        select: "name description",
+      })
+      .then((course) => {
+        if (!course) {
+          throw new ErrorResponse(
+            `Courses not found with this ${req.params.id}`,
+            404
+          );
+        }
+
+        res.status(200).json({
+          success: true,
+
+          data: course,
+        });
+      })
+      .catch((err) => {
+        next(err);
+      });
+  }
+
+  // @desc Add  courses
+  //@route POST /api/v1/bootcamps/:bootcampId/courses
+  //@access Private
+  addCourse(req, res, next) {
+    console.log(req.body);
+    Bootcamp.findById(req.bootcampId)
+      .then((bootcamp) => {
+        if (!bootcamp) {
+          throw new ErrorResponse(
+            `Bootcamp not found with this ${req.params.bootcampId}`,
+            404
+          );
+        }
+
+        Courses.create(req.body)
+          .then((course) => {
+            res.status(200).json({
+              success: true,
+
+              data: course,
+            });
+          })
+          .catch((err) => {
+            next(err);
+          });
       })
       .catch((err) => {
         next(err);
