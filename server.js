@@ -3,6 +3,7 @@ const dotenv = require("dotenv");
 //route files
 const bootcamps = require("./routes/bootcamps");
 const courses = require("./routes/courses");
+const auth = require("./routes/auth");
 const errorHanlder = require("./middleware/error");
 const fileupload = require("express-fileupload");
 const path = require("path");
@@ -37,7 +38,7 @@ app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/api/v1/courses", courses);
 app.use("/api/v1/bootcamps", bootcamps);
-
+app.use("/api/v1/auth", auth);
 app.use(errorHanlder);
 
 const PORT = process.env.PORT;
