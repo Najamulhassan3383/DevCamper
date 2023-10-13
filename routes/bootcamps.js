@@ -3,6 +3,8 @@ const BootcampsRoutes = require("../controllers/bootcamps");
 const CourseRouter = require("./courses");
 const router = express.Router();
 const bootcampsRoutes = new BootcampsRoutes();
+const advancedResults = require("../middleware/advanceResults");
+const Bootcamp = require("../models/Bootcamps");
 
 // Reroute requests starting with /:bootcampId/courses to the CourseRouter
 router.param("bootcampId", (req, res, next, bootcampId) => {
@@ -23,7 +25,7 @@ router.route("/:id/photo").put(bootcampsRoutes.bootcampPhotoUpload);
 
 router
   .route("/")
-  .get(bootcampsRoutes.getBootcamps)
+  .get(advancedResults(Bootcamp, "courses"), bootcampsRoutes.getBootcamps)
   .post(bootcampsRoutes.createBootcamp);
 
 router

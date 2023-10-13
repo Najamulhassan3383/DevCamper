@@ -12,62 +12,7 @@ class BootcampsRoutes {
   //@route GET /api/v1/bootcamps
   //@access Public
   getBootcamps(req, res, next) {
-    let query;
-    let reqQuery = { ...req.query };
-
-    // Remove fields that should not be part of the query
-    const removeFields = ["select", "sort"];
-    removeFields.forEach((item) => delete reqQuery[item]);
-
-    let queryStr = JSON.stringify(reqQuery);
-    query = queryStr.replace(/\b(gt|gte|lt|lte)\b/g, (match) => {
-      return `$${match}`;
-    });
-
-    let mongooseQuery = Bootcamp.find(JSON.parse(query)).populate("courses");
-
-    // Apply select fields if specified in req.query.select
-    if (req.query.select) {
-      const fields = req.query.select.split(",").join(" ");
-      mongooseQuery = mongooseQuery.select(fields);
-    }
-
-    if (req.query.sort) {
-      const sortBy = req.query.sort.split(",").join(" ");
-      mongooseQuery = mongooseQuery.sort(sortBy);
-    } else {
-      mongooseQuery = mongooseQuery.sort("-createdAt");
-    }
-
-    //pagination
-    console.log("query is ", req.query);
-    const page = parseInt(req.query.page, 10) || 1;
-    const limit = parseInt(req.query.limit, 10) || 10;
-    const skip = (page - 1) * limit;
-
-    //for skipping certain amount of bootcamps
-    // console.log(limit);
-
-    mongooseQuery = mongooseQuery.skip(skip).limit(limit).exec();
-
-    mongooseQuery
-      .then((bootcamps) => {
-        if (!bootcamps) {
-          throw new ErrorResponse(
-            `Bootcamp not found with this ${req.params.id}`,
-            404
-          );
-        } else {
-          res.status(200).json({
-            success: true,
-            count: bootcamps.length,
-            data: bootcamps,
-          });
-        }
-      })
-      .catch((err) => {
-        next(err);
-      });
+    res.status(200).json(res.advancedResults);
   }
 
   // @desc Get single bootcamp

@@ -10,20 +10,8 @@ class CoursesRoutes {
   //@access Public
 
   getCourses(req, res, next) {
-    let query;
-
-    console.log(req.bootcampId);
     if (req.bootcampId) {
-      query = Courses.find({ bootcamp: req.bootcampId });
-    } else {
-      query = Courses.find().populate({
-        path: "bootcamp",
-        select: "name description",
-      });
-    }
-
-    query
-      .then((courses) => {
+      Courses.find({ bootcamp: req.bootcampId }).then((courses) => {
         if (!courses) {
           throw new ErrorResponse(
             `Courses not found with this ${req.params.id}`,
@@ -37,10 +25,10 @@ class CoursesRoutes {
           count: courses.length,
           data: courses,
         });
-      })
-      .catch((err) => {
-        next(err);
       });
+    } else {
+      res.status(200).json(res.advancedResults);
+    }
   }
 
   // @desc Get  courses
