@@ -4,6 +4,8 @@ const dotenv = require("dotenv");
 const bootcamps = require("./routes/bootcamps");
 const courses = require("./routes/courses");
 const errorHanlder = require("./middleware/error");
+const fileupload = require("express-fileupload");
+const path = require("path");
 //mongo db connection
 
 const db = require("./config/db");
@@ -24,8 +26,15 @@ if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
 }
 
+//file uploading
+app.use(fileupload());
+
+//set static folder
+app.use(express.static(path.join(__dirname, "public")));
+
 // app.use(logger);
 // mount routers
+
 app.use("/api/v1/courses", courses);
 app.use("/api/v1/bootcamps", bootcamps);
 

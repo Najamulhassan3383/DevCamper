@@ -5,6 +5,7 @@ const Bootcamp = require("../models/Bootcamps");
 const ErrorResponse = require("../utils/errorResponse");
 const geoCoder = require("../utils/geoCoder");
 const Course = require("../models/Courses");
+const path = require("path");
 
 class BootcampsRoutes {
   // @desc Get all bootcamps
@@ -46,10 +47,6 @@ class BootcampsRoutes {
 
     //for skipping certain amount of bootcamps
     // console.log(limit);
-
-    console.log(
-      `Received query parameters: page=${req.query.page}, limit=${req.query.limit}`
-    );
 
     mongooseQuery = mongooseQuery.skip(skip).limit(limit).exec();
 
@@ -205,6 +202,57 @@ class BootcampsRoutes {
             count: bootcamps.length,
             data: bootcamps,
           });
+        });
+      })
+      .catch((err) => {
+        next(err);
+      });
+  }
+  // @desc upload photo of  bootcamp
+  //@route PUT /api/v1/bootcamps/:id/photo
+  //@access Private
+  bootcampPhotoUpload(req, res, next) {
+    Bootcamp.findById(req.params.id)
+      .then(async (bootcamp) => {
+        if (!bootcamp) {
+          throw new ErrorResponse(
+            `Bootcamp not found with this ${req.params.id}`,
+            404
+          );
+        }
+
+        if (!req.files) {
+          return next(new ErrorResponse("plz add a file", 400));
+        }
+        const file = req.files.file;
+        console.log(file);
+        if (!file.mimetype.startsWith("image")) {
+          return next(new ErrorResponse("plz upload an image file", 400));
+        }
+        //CHECK FILE SIZE
+        if (file.size > process.env.MAX_FILE_UPLOAD) {
+          throw new ErrorResponse("plz add smaller size picture", 400);
+        }
+
+        //create custom file name
+        file.name = `photo_${bootcamp._id}${path.parse(file.name).ext}`;
+        // console.log(file.name);
+
+        file.mv(`${process.env.FILE_UPLOAD_PATH}/${file.name}`, async (err) => {
+          if (err) {
+            console.log(err);
+            return next(new ErrorResponse("Problem with file upload", 500));
+          }
+          Bootcamp.findByIdAndUpdate(req.params.id, { photo: file.name })
+            .then((bootcamp) => {
+              res.status(200).json({
+                success: true,
+                data: file.name,
+              });
+            })
+            .catch((err) => {
+              next(err);
+            });
         });
       })
       .catch((err) => {
